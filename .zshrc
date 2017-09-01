@@ -87,5 +87,11 @@ alias pull="git pull --rebase"
 alias push="git push origin"                                                                                                                                                                                                              
 alias la="ls -al"                                                                                                                                                                                                                         
 alias up="cd .."                                                                                                                                                                                                              
-alias zp-"vi ~/.zshrc"
+alias zp="vi ~/.zshrc"
+alias cln="./gradlew clean"
+alias tmp=“git add . && git commit -m ‘tmp’”
+alias untmp="git reset HEAD~1"
+bindkey '^[^[[D' forward-word
+bindkey '^[^[[C' backward-word
+
 
