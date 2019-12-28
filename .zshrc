@@ -1,8 +1,10 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH="/usr/local/opt/flex/bin:/usr/local/opt/gettext/bin:$HOME/opt/bin:$HOME/opt/cross/bin:$PATH"
+
 
 # Path to your oh-my-zsh installation.
-export ZSH=/Users/adam/.oh-my-zsh
+export ZSH=/Users/amarkon/.oh-my-zsh
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
@@ -51,7 +53,10 @@ ZSH_THEME="agnoster"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(
+  git
+  globalias
+)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -70,20 +75,21 @@ autoload -Uz compinit
 compinit
 # End of lines added by compinstall
 
-DEFAULT_USER=adam
+DEFAULT_USER=amarkon
 
+alias vi="vim"
 alias gs="git status"
 alias gb="git branch"
-alias gch="git checkout"
+alias gch="git checkout" 
+alias gnb="git checkout -b adam/"
 alias gco="git commit -a"
-alias gr="git rebase"
+alias gcoa="git commit -a --amend --no-edit"
 alias gd="git diff"
+alias gda="git diff --staged"
 alias gl="git log"
 alias gds="git diff --stat"
 alias stash="git stash save"
 alias pop="git stash pop"
-alias pull="git pull --rebase"
-alias push="git push origin"
 alias la="ls -al"
 alias up="cd .."
 alias g="cd ~/git"
@@ -92,9 +98,36 @@ alias zp="vi ~/.zshrc"
 alias tmp=“git add . && git commit -m ‘tmp’”
 alias untmp="git reset HEAD~1"
 alias docker-clean="docker run --rm --net=host --pid=host --privileged -it justincormack/nsenter1 /sbin/fstrim /var/lib"
+gre () {
+  if [ $1 = "-a" ]; then
+    git rebase --autostash $2;
+  elif [ $1 = "-m" ]; then
+    git pull --rebase origin master;
+  else
+    git rebase $@
+  fi
+}
 
-bindkey '^[^[[D' forward-word
-bindkey '^[^[[C' backward-word
+pull () {
+  current_branch=$(git symbolic-ref --short HEAD);
+  if [ $current_branch = "master" ]; then
+    git pull --rebase --autostash;
+  else
+    git pull origin `git symbolic-ref --short HEAD` --rebase --autostash;
+  fi
+}
+push () {
+  git push origin `git symbolic-ref --short HEAD` $1;
+}
+yolo () {
+  git push origin `git symbolic-ref --short HEAD` --no-verify -ff;
+}
+
+bindkey '^[^[[D' backward-word
+bindkey '^[^[[C' forward-word
+bindkey '^r' history-incremental-search-backward
+
+export HUB_PROTOCOL=ssh
 
 command_not_found_handler() {
   # Do not run within a pipe
@@ -114,6 +147,8 @@ command_not_found_handler() {
   fi
   return $?
 }
+
+eval $(thefuck --alias)
 
 # ssh-agent
 env=~/.ssh/agent.env
@@ -137,3 +172,6 @@ elif [ "$SSH_AUTH_SOCK" ] && [ $agent_run_state = 1 ]; then
 fi
 
 unset env
+
+compctl -K _repo_comp repo
+
