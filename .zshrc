@@ -80,7 +80,6 @@ DEFAULT_USER=amarkon
 alias vi="vim"
 alias gs="git status"
 alias gb="git branch"
-alias gch="git checkout" 
 alias gnb="git checkout -b adam/"
 alias gco="git commit -a"
 alias gcoa="git commit -a --amend --no-edit"
@@ -95,16 +94,28 @@ alias up="cd .."
 alias g="cd ~/git"
 alias up="cd .."
 alias zp="vi ~/.zshrc"
-alias tmp=“git add . && git commit -m ‘tmp’”
+alias tmp="git add . && git commit -m 'tmp'"
 alias untmp="git reset HEAD~1"
 alias docker-clean="docker run --rm --net=host --pid=host --privileged -it justincormack/nsenter1 /sbin/fstrim /var/lib"
-gre () {
-  if [ $1 = "-a" ]; then
-    git rebase --autostash $2;
-  elif [ $1 = "-m" ]; then
-    git pull --rebase origin master;
+alias crm="cd ~/git/HubSpot/CRM"
+alias prod-build="NODE_ARGS=\"--max-old-space-size=5192\" bend reactor build all --mode production --update"
+alias tmux="tmux -2"
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+
+function brs () {
+  if [ "$1" = "" ]; then
+    NODE_ARGS='--max_old_space_size=8192' bend reactor serve . --update;
   else
-    git rebase $@
+    NODE_ARGS='--max_old_space_size=8192' bend reactor serve $@ --update;
+  fi
+}
+
+function start-crm () {
+  if [ "$1" = "" ]; then
+    cd ~/git/HubSpot/CRM;
+    NODE_ARGS='--max_old_space_size=6144' bend reactor serve crm_ui crm_components crm_data crm_internal crm_schema --update;
+  else
+    NODE_ARGS='--max_old_space_size=6144' bend reactor serve $@ --update;
   fi
 }
 
@@ -117,10 +128,39 @@ pull () {
   fi
 }
 push () {
-  git push origin `git symbolic-ref --short HEAD` $1;
+  git push origin `git symbolic-ref --short HEAD` $@;
 }
 yolo () {
   git push origin `git symbolic-ref --short HEAD` --no-verify -ff;
+}
+
+_gch_comp() {
+  reply=(`git branch | grep adam`);
+}
+
+compctl -K _gch_comp gch
+compctl -K _gch_comp gre
+
+function gch() {
+  if [ "$1" = "-b" ]; then
+    git checkout -b "adam/$2";
+  else
+    git checkout "$1";
+  fi
+}
+
+gre () {
+  if [ $1 = "-a" ]; then
+    git rebase --autostash $2;
+  elif [ $1 = "-m" ]; then
+    git pull --rebase origin master;
+  else
+    git rebase $@
+  fi
+}
+
+function trace-dep() {
+  bpm dependencies --path $1 $2
 }
 
 bindkey '^[^[[D' backward-word
@@ -150,6 +190,9 @@ command_not_found_handler() {
 
 eval $(thefuck --alias)
 
+#1password
+#eval $(op signin my)
+
 # ssh-agent
 env=~/.ssh/agent.env
 
@@ -173,5 +216,58 @@ fi
 
 unset env
 
+# open pr page for current branch
+pr () {
+  REMOTE_BRANCH=$(git for-each-ref --format='%(upstream:short)' $(git symbolic-ref -q HEAD))
+  REMOTE_NAME=$(echo $REMOTE_BRANCH | cut -d '/' -f1)
+  REMOTE_URL=$(git remote get-url $REMOTE_NAME);
+  BRANCH=$(echo $REMOTE_BRANCH | cut -d '/' -f2);
+  open ${REMOTE_URL%.*}/compare/${BRANCH}\?expand=1
+}
+
+# get yesterdays PRs
+yesterday-prs () {
+  DATE=`date -v-1d +%Y-%m-%d`
+  USERNAME=`git config user.email | cut -d '@' -f1`
+  GIT_URL=`git remote get-url origin | grep -o '[@][A-Za-z\.]*' | cut -d'@' -f2`
+  open "https://"${GIT_URL}"/search?q=author%3A"${USERNAME}"+type%3Apr+merged%3A%3E%3D"${DATE}"&type=Issues"
+}
+
+# get the last 7 days worth of PRs
+fifteen-five () {
+  DATE=`date -v-7d +%Y-%m-%d`
+  USERNAME=`git config user.email | cut -d '@' -f1`
+  GIT_URL=`git remote get-url origin |  grep -o '[@][A-Za-z\.]*' | cut -d'@' -f2`
+  open "https://"${GIT_URL}"/search?q=author%3A"${USERNAME}"+type%3Apr+merged%3A%3E%3D"${DATE}"&type=Issues"
+}
+
+# merge from updated master branch
+merge-master () {
+  BRANCH=`git branch | grep "*" | cut -d " " -f2`
+  git checkout master
+  git pull
+  git checkout $BRANCH
+  git merge master
+}
+
+# Set to the directory you typically clone your git repos
+CODE_DIR=$HOME/git/HubSpot
+
+# Completion for repo
+_repo_comp() {
+  reply=(`ls $CODE_DIR`);
+}
+
+function repo() {
+  if [ ! -d "$CODE_DIR/$1" ]; then
+    echo Repo missing: $1
+    cd $CODE_DIR
+    git clone "git@git.hubteam.com:HubSpot/$1.git" || git clone "git@git.hubteam.com:HubSpotProtected/$1.git"
+  fi
+
+  cd $CODE_DIR/$1
+}
+
 compctl -K _repo_comp repo
 
+. ~/.hubspot/shellrc
