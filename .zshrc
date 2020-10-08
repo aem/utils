@@ -55,7 +55,6 @@ ZSH_THEME="agnoster"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
-  globalias
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -77,6 +76,7 @@ compinit
 
 DEFAULT_USER=amarkon
 
+alias git="noglob git"
 alias vi="vim"
 alias gs="git status"
 alias gb="git branch"
@@ -100,13 +100,20 @@ alias docker-clean="docker run --rm --net=host --pid=host --privileged -it justi
 alias crm="cd ~/git/HubSpot/CRM"
 alias prod-build="NODE_ARGS=\"--max-old-space-size=5192\" bend reactor build all --mode production --update"
 alias tmux="tmux -2"
+alias daily-record="nrql \"select percentile(timeSinceLoad, 50, 75) from PageAction where actionName='reaganFinished' and timeSinceLoad > 0 and appName='crm-records-ui' and countryCode='US' and visibility='visible' since 1 day ago compare with 1 week ago\""
+alias tsserver="NODE_ARGS='--max_old_space_size=8192' bpx asset-bender reactor host-intellisense"
+
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+
+function nrql () {
+  bpx nrql@canary $@ | grep -v fetching | grep -v Refreshing
+}
 
 function brs () {
   if [ "$1" = "" ]; then
-    NODE_ARGS='--max_old_space_size=8192' bend reactor serve . --update;
+    NODE_ARGS='--max_old_space_size=8192' bend reactor serve . --update --webpackArgs="--progress";
   else
-    NODE_ARGS='--max_old_space_size=8192' bend reactor serve $@ --update;
+    NODE_ARGS='--max_old_space_size=8192' bend reactor serve $@ --update --webpackArgs="--progress";
   fi
 }
 
@@ -167,6 +174,7 @@ bindkey '^[^[[D' backward-word
 bindkey '^[^[[C' forward-word
 bindkey '^r' history-incremental-search-backward
 
+export GITHUB_HOST=git.hubteam.com
 export HUB_PROTOCOL=ssh
 
 command_not_found_handler() {
@@ -187,8 +195,6 @@ command_not_found_handler() {
   fi
   return $?
 }
-
-eval $(thefuck --alias)
 
 #1password
 #eval $(op signin my)
@@ -250,6 +256,16 @@ merge-master () {
   git merge master
 }
 
+# ui-library search
+uilib () {
+  open "https://tools.hubteamqa.com/ui-library/search?search=$1"
+}
+
+# opengrok search
+og () {
+  open "https://private.hubteam.com/opengrok/search?q=$1"
+}
+
 # Set to the directory you typically clone your git repos
 CODE_DIR=$HOME/git/HubSpot
 
@@ -270,4 +286,5 @@ function repo() {
 
 compctl -K _repo_comp repo
 
+# Added by nex: https://git.hubteam.com/HubSpot/nex
 . ~/.hubspot/shellrc

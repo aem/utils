@@ -66,17 +66,17 @@ call plug#begin('~/.vim/plugged')
 Plug 'haishanh/night-owl.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'prettier/vim-prettier', {
-  \ 'do': 'yarn install',
-  \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html'] }
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'airblade/vim-gitgutter'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'jparise/vim-graphql'
-Plug 'pangloss/vim-javascript'
 Plug 'preservim/nerdtree'
+Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'maxmellon/vim-jsx-pretty'
+Plug 'zivyangll/git-blame.vim'
+Plug 'preservim/nerdcommenter'
+Plug 'glanotte/vim-jasmine'
 
 call plug#end()
 
@@ -98,12 +98,66 @@ set nocompatible
 set splitbelow
 set splitright
 
+augroup filetypedetect
+autocmd BufNewFile,BufRead *.js setfiletype javascriptreact
+augroup END
+
+""""""""""""""""""""""""""""""""""""""""
+" shortcut for clearing search highlight
+""""""""""""""""""""""""""""""""""""""""
+nmap <leader>h :noh<CR>
+
+""""""""""""""""""""""""""
+" color scheme for popover
+""""""""""""""""""""""""""
+func! s:my_colors_setup() abort
+    hi Pmenu guibg=#d7e5dc gui=NONE ctermfg=111 ctermbg=237
+    hi Pmenu guibg=#d7e5dc gui=NONE ctermfg=237 ctermbg=111
+endfunc
+
+augroup colorscheme_coc_setup | au!
+    au ColorScheme * call s:my_colors_setup()
+augroup END
+
+"""""""""""""""
+" eslint config
+"""""""""""""""
+let g:ale_fixers = {}
+let g:ale_fixers.javascript = ['eslint']
+let g:ale_fix_on_save = 1
+
+"""""""""""""""""
+" prettier config
+"""""""""""""""""
+command! -nargs=0 Prettier :call CocAction('runCommand', 'prettier.formatFile')
+
+"""""""""""""
+" grep config
+"""""""""""""
+" The Silver Searcher
+nmap <leader>g :Ag<CR> 
+nmap <C-F> :Ag<CR>
+if executable('ag')
+  " Use ag over grep
+  set grepprg=ag\ --nogroup\ --nocolor
+
+  " Use ag in CtrlP for listing files. Lightning fast and respects
+  " .gitignore
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+
+  "   ag is fast enough that CtrlP doesn't need to cache
+  let g:ctrlp_use_caching = 0
+
+  command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, {'options': '--delimiter : --nth 4..'}, <bang>0)
+endif
+
 """"""""""""""""
 " buffer configs
 """"""""""""""""
 set hidden
 nmap <leader>` :bnext<CR>
 nmap <leader>~ :bprev<CR>
+nmap <C-x> :bdelete<CR>
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#show_tabs = 1
 let g:airline#extensions#tabline#left_sep = ' '
@@ -126,7 +180,10 @@ map <C-p> :Files<CR>
 
 syntax enable
 colorscheme night-owl
-
+autocmd BufReadPost,BufNewFile *test.js set filetype=jasmine.javascript syntax=jasmine
+autocmd BufReadPost,BufNewFile *test.ts set filetype=jasmine.javascript syntax=jasmine
+autocmd BufReadPost,BufNewFile *spec.js set filetype=jasmine.javascript syntax=jasmine
+autocmd BufReadPost,BufNewFile *spec.ts set filetype=jasmine.javascript syntax=jasmine
 
 """"""""""""""""""""""
 " config from coc.nvim
@@ -143,7 +200,7 @@ set cmdheight=2
 
 " Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
 " delays and poor user experience.
-set updatetime=300
+set updatetime=150
 
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c
