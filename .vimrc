@@ -62,22 +62,22 @@ if has('syntax') && has('eval')
 endif
 
 call plug#begin('~/.vim/plugged')
-
-Plug 'haishanh/night-owl.vim'
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'airblade/vim-gitgutter'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-Plug 'jparise/vim-graphql'
-Plug 'preservim/nerdtree'
-Plug 'Xuyuanp/nerdtree-git-plugin'
-Plug 'maxmellon/vim-jsx-pretty'
-Plug 'zivyangll/git-blame.vim'
-Plug 'preservim/nerdcommenter'
-Plug 'glanotte/vim-jasmine'
-
+  Plug 'haishanh/night-owl.vim'
+  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  Plug 'junegunn/fzf.vim'
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  Plug 'airblade/vim-gitgutter'
+  Plug 'vim-airline/vim-airline'
+  Plug 'vim-airline/vim-airline-themes'
+  Plug 'jparise/vim-graphql'
+  Plug 'preservim/nerdtree'
+  Plug 'Xuyuanp/nerdtree-git-plugin'
+  Plug 'maxmellon/vim-jsx-pretty'
+  Plug 'zivyangll/git-blame.vim'
+  Plug 'preservim/nerdcommenter'
+  Plug 'glanotte/vim-jasmine'
+  Plug 'pantharshit00/vim-prisma'
+  Plug 'digitaltoad/vim-pug'
 call plug#end()
 
 let g:javascript_plugin_jsdoc = 1
@@ -97,27 +97,18 @@ set hlsearch
 set nocompatible
 set splitbelow
 set splitright
+set cursorline
 
 augroup filetypedetect
-autocmd BufNewFile,BufRead *.js setfiletype javascriptreact
+  autocmd BufNewFile,BufRead *.js setfiletype javascriptreact
+  autocmd BufNewFile,BufRead *.ts setfiletype typescriptreact
+  autocmd BufNewFile,BufRead *.lyaml setfiletype yaml
 augroup END
 
 """"""""""""""""""""""""""""""""""""""""
 " shortcut for clearing search highlight
 """"""""""""""""""""""""""""""""""""""""
 nmap <leader>h :noh<CR>
-
-""""""""""""""""""""""""""
-" color scheme for popover
-""""""""""""""""""""""""""
-func! s:my_colors_setup() abort
-    hi Pmenu guibg=#d7e5dc gui=NONE ctermfg=111 ctermbg=237
-    hi Pmenu guibg=#d7e5dc gui=NONE ctermfg=237 ctermbg=111
-endfunc
-
-augroup colorscheme_coc_setup | au!
-    au ColorScheme * call s:my_colors_setup()
-augroup END
 
 """""""""""""""
 " eslint config
@@ -139,11 +130,11 @@ nmap <leader>g :Ag<CR>
 nmap <C-F> :Ag<CR>
 if executable('ag')
   " Use ag over grep
-  set grepprg=ag\ --nogroup\ --nocolor
+  set grepprg=ag\ --nogroup\ --color
 
   " Use ag in CtrlP for listing files. Lightning fast and respects
   " .gitignore
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+  let g:ctrlp_user_command = 'ag %s -l --color -g ""'
 
   "   ag is fast enough that CtrlP doesn't need to cache
   let g:ctrlp_use_caching = 0
@@ -172,18 +163,40 @@ map <leader>gp <Plug>(GitGutterPreviewHunk)
 """"""""""""""""
 " config for fzf
 """"""""""""""""
+let g:fzf_colors = {
+  \ 'fg':      ['fg', 'Normal'],
+  \ 'bg':      ['bg', 'Normal'],
+  \ 'hl':      ['fg', 'Label'],
+  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+  \ 'hl+':     ['fg', 'Label'],
+  \ 'info':    ['fg', 'Comment'],
+  \ 'border':  ['fg', 'Ignore'],
+  \ 'prompt':  ['fg', 'Function'],
+  \ 'pointer': ['fg', 'Statement'],
+  \ 'marker':  ['fg', 'Conditional'],
+  \ 'spinner': ['fg', 'Label'],
+  \ 'header':  ['fg', 'Comment'] }
 map <C-p> :Files<CR>
 
 """"""""""""""""""""""""""""
 " config for night-owl theme
 """"""""""""""""""""""""""""
 
+if (has("termguicolors"))
+ set termguicolors
+endif
+
 syntax enable
 colorscheme night-owl
-autocmd BufReadPost,BufNewFile *test.js set filetype=jasmine.javascript syntax=jasmine
-autocmd BufReadPost,BufNewFile *test.ts set filetype=jasmine.javascript syntax=jasmine
-autocmd BufReadPost,BufNewFile *spec.js set filetype=jasmine.javascript syntax=jasmine
-autocmd BufReadPost,BufNewFile *spec.ts set filetype=jasmine.javascript syntax=jasmine
+
+hi PmenuSel ctermfg=0 ctermbg=178 guibg=#d2aeeb guifg=#011627
+let g:terminal_ansi_colors = [
+    \ "#ffffff","#011627","#82AAFF","#21c7a8",
+    \ "#22da6e","#C792EA","#EF5350","#addb67",
+    \ "#ffffff","#575656","#82AAFF","#7fdbca",
+    \ "#22da6e","#C792EA","#EF5350","#ffeb95"
+    \]
 
 """"""""""""""""""""""
 " config from coc.nvim
@@ -200,7 +213,7 @@ set cmdheight=2
 
 " Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
 " delays and poor user experience.
-set updatetime=150
+set updatetime=100
 
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c

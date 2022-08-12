@@ -97,13 +97,14 @@ alias zp="vi ~/.zshrc"
 alias tmp="git add . && git commit -m 'tmp'"
 alias untmp="git reset HEAD~1"
 alias docker-clean="docker run --rm --net=host --pid=host --privileged -it justincormack/nsenter1 /sbin/fstrim /var/lib"
-alias crm="cd ~/git/HubSpot/CRM"
-alias prod-build="NODE_ARGS=\"--max-old-space-size=5192\" bend reactor build all --mode production --update"
 alias tmux="tmux -2"
-alias daily-record="nrql \"select percentile(timeSinceLoad, 50, 75) from PageAction where actionName='reaganFinished' and timeSinceLoad > 0 and appName='crm-records-ui' and countryCode='US' and visibility='visible' since 1 day ago compare with 1 week ago\""
-alias tsserver="NODE_ARGS='--max_old_space_size=8192' bpx asset-bender reactor host-intellisense"
+alias dev-abx="BPX_DEV_PACKAGES=~/git/HubSpot/asset-bender-hubspot/bpx-asset-bender bpx asset-bender"
 
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+
+function tsserver () {
+  NODE_ARGS='--max_old_space_size=8192' bpx asset-bender reactor host "$@" --host-most-recent 10
+}
 
 function nrql () {
   bpx nrql@canary $@ | grep -v fetching | grep -v Refreshing
@@ -114,6 +115,14 @@ function brs () {
     NODE_ARGS='--max_old_space_size=8192' bend reactor serve . --update --webpackArgs="--progress";
   else
     NODE_ARGS='--max_old_space_size=8192' bend reactor serve $@ --update --webpackArgs="--progress";
+  fi
+}
+
+function dev-brs () {
+  if [ "$1" = "" ]; then
+    NODE_ARGS='--max_old_space_size=8192' dev-abx reactor serve . --update --webpackArgs="--progress";
+  else
+    NODE_ARGS='--max_old_space_size=8192' dev-abx reactor serve $@ --update --webpackArgs="--progress";
   fi
 }
 
@@ -128,7 +137,7 @@ function start-crm () {
 
 pull () {
   current_branch=$(git symbolic-ref --short HEAD);
-  if [ $current_branch = "master" ]; then
+  if [ $current_branch = "master" ] || [ $current_branch = "main" ]; then
     git pull --rebase --autostash;
   else
     git pull origin `git symbolic-ref --short HEAD` --rebase --autostash;
@@ -231,41 +240,6 @@ pr () {
   open ${REMOTE_URL%.*}/compare/${BRANCH}\?expand=1
 }
 
-# get yesterdays PRs
-yesterday-prs () {
-  DATE=`date -v-1d +%Y-%m-%d`
-  USERNAME=`git config user.email | cut -d '@' -f1`
-  GIT_URL=`git remote get-url origin | grep -o '[@][A-Za-z\.]*' | cut -d'@' -f2`
-  open "https://"${GIT_URL}"/search?q=author%3A"${USERNAME}"+type%3Apr+merged%3A%3E%3D"${DATE}"&type=Issues"
-}
-
-# get the last 7 days worth of PRs
-fifteen-five () {
-  DATE=`date -v-7d +%Y-%m-%d`
-  USERNAME=`git config user.email | cut -d '@' -f1`
-  GIT_URL=`git remote get-url origin |  grep -o '[@][A-Za-z\.]*' | cut -d'@' -f2`
-  open "https://"${GIT_URL}"/search?q=author%3A"${USERNAME}"+type%3Apr+merged%3A%3E%3D"${DATE}"&type=Issues"
-}
-
-# merge from updated master branch
-merge-master () {
-  BRANCH=`git branch | grep "*" | cut -d " " -f2`
-  git checkout master
-  git pull
-  git checkout $BRANCH
-  git merge master
-}
-
-# ui-library search
-uilib () {
-  open "https://tools.hubteamqa.com/ui-library/search?search=$1"
-}
-
-# opengrok search
-og () {
-  open "https://private.hubteam.com/opengrok/search?q=$1"
-}
-
 # Set to the directory you typically clone your git repos
 CODE_DIR=$HOME/git/HubSpot
 
@@ -282,6 +256,16 @@ function repo() {
   fi
 
   cd $CODE_DIR/$1
+
+  # if package.json present, install npm deps
+  if test -f "$(pwd)/package.json"; then
+    bend yarn;
+  fi
+
+  # if bend root, then update bend deps
+  if test -f "$(pwd)/static_conf.json"; then
+    bend bpm update;
+  fi
 }
 
 compctl -K _repo_comp repo
