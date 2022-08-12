@@ -1,0 +1,14 @@
+[user]
+	email = amarkon@hubspot.com
+[core]
+	hooksPath = /Users/amarkon/.git_hooks
+	excludesfile = ~/.gitignore
+[remote "origin"]
+	prune = true
+[hub]
+	host = github.com
+	protocol = ssh
+[pager]
+	grep = false
+[alias]
+	dad = !curl https://icanhazzdadjoke.com/ && git add

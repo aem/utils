@@ -1,0 +1,13 @@
+.DS_Store
+.vscode
+node_modules
+*.log
+*.error
+*~
+*.swp
+*.swo
+testbed
+.vim
+target/
+.idea/
+.gradle-enterprise/
