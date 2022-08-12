@@ -5,6 +5,7 @@ ln -sf ~/git/aem/utils/vimrc ~/.vimrc
 ln -sf ~/git/aem/utils/zshrc ~/.zshrc
 ln -sf ~/git/aem/utils/gitignore ~/.gitignore
 ln -sf ~/git/aem/utils/gitconfig ~/.gitconfig
+ln -sf ~/git/aem/utils/karabiner.json ~/.config/karabiner/karabiner.json
 
 ################################################################################
 ### Install third-party software                                             ###       
