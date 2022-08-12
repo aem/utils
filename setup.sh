@@ -1,13 +1,4 @@
 ################################################################################
-### Link dotfiles to correct location                                        ###       
-################################################################################
-ln -sf ~/git/aem/utils/vimrc ~/.vimrc
-ln -sf ~/git/aem/utils/zshrc ~/.zshrc
-ln -sf ~/git/aem/utils/gitignore ~/.gitignore
-ln -sf ~/git/aem/utils/gitconfig ~/.gitconfig
-ln -sf ~/git/aem/utils/karabiner.json ~/.config/karabiner/karabiner.json
-
-################################################################################
 ### Install third-party software                                             ###       
 ################################################################################
 # Homebrew
@@ -51,6 +42,16 @@ n latest
 # I will always forget this stuff
 echo "Don't forget to install third-party things you'll want!"
 echo "  - Bear (Mac App Store)" 
+
+################################################################################
+### Link dotfiles to correct location                                        ###       
+################################################################################
+ln -sf ~/git/aem/utils/vimrc ~/.vimrc
+ln -sf ~/git/aem/utils/zshrc ~/.zshrc
+ln -sf ~/git/aem/utils/gitignore ~/.gitignore
+ln -sf ~/git/aem/utils/gitconfig ~/.gitconfig
+ln -sf ~/git/aem/utils/karabiner.json ~/.config/karabiner/karabiner.json
+ln -sf ~/git/aem/utils/oh-my-zsh ~/.oh-my-zsh
 
 ################################################################################
 ### Set up system defaults                                                   ###       
