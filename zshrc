@@ -98,42 +98,6 @@ alias tmp="git add . && git commit -m 'tmp'"
 alias untmp="git reset HEAD~1"
 alias docker-clean="docker run --rm --net=host --pid=host --privileged -it justincormack/nsenter1 /sbin/fstrim /var/lib"
 alias tmux="tmux -2"
-alias dev-abx="BPX_DEV_PACKAGES=~/git/HubSpot/asset-bender-hubspot/bpx-asset-bender bpx asset-bender"
-
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
-
-function tsserver () {
-  NODE_ARGS='--max_old_space_size=8192' bpx asset-bender reactor host "$@" --host-most-recent 10
-}
-
-function nrql () {
-  bpx nrql@canary $@ | grep -v fetching | grep -v Refreshing
-}
-
-function brs () {
-  if [ "$1" = "" ]; then
-    NODE_ARGS='--max_old_space_size=8192' bend reactor serve . --update --webpackArgs="--progress";
-  else
-    NODE_ARGS='--max_old_space_size=8192' bend reactor serve $@ --update --webpackArgs="--progress";
-  fi
-}
-
-function dev-brs () {
-  if [ "$1" = "" ]; then
-    NODE_ARGS='--max_old_space_size=8192' dev-abx reactor serve . --update --webpackArgs="--progress";
-  else
-    NODE_ARGS='--max_old_space_size=8192' dev-abx reactor serve $@ --update --webpackArgs="--progress";
-  fi
-}
-
-function start-crm () {
-  if [ "$1" = "" ]; then
-    cd ~/git/HubSpot/CRM;
-    NODE_ARGS='--max_old_space_size=6144' bend reactor serve crm_ui crm_components crm_data crm_internal crm_schema --update;
-  else
-    NODE_ARGS='--max_old_space_size=6144' bend reactor serve $@ --update;
-  fi
-}
 
 pull () {
   current_branch=$(git symbolic-ref --short HEAD);
@@ -145,9 +109,6 @@ pull () {
 }
 push () {
   git push origin `git symbolic-ref --short HEAD` $@;
-}
-yolo () {
-  git push origin `git symbolic-ref --short HEAD` --no-verify -ff;
 }
 
 _gch_comp() {
@@ -175,15 +136,11 @@ gre () {
   fi
 }
 
-function trace-dep() {
-  bpm dependencies --path $1 $2
-}
-
 bindkey '^[^[[D' backward-word
 bindkey '^[^[[C' forward-word
 bindkey '^r' history-incremental-search-backward
 
-export GITHUB_HOST=git.hubteam.com
+export GITHUB_HOST=github.com
 export HUB_PROTOCOL=ssh
 
 command_not_found_handler() {
@@ -241,7 +198,7 @@ pr () {
 }
 
 # Set to the directory you typically clone your git repos
-CODE_DIR=$HOME/git/HubSpot
+CODE_DIR=$HOME/src/ambrook
 
 # Completion for repo
 _repo_comp() {
@@ -252,23 +209,12 @@ function repo() {
   if [ ! -d "$CODE_DIR/$1" ]; then
     echo Repo missing: $1
     cd $CODE_DIR
-    git clone "git@git.hubteam.com:HubSpot/$1.git" || git clone "git@git.hubteam.com:HubSpotProtected/$1.git"
+    git clone "git@github.com:ambrook/$1.git"
   fi
 
   cd $CODE_DIR/$1
-
-  # if package.json present, install npm deps
-  if test -f "$(pwd)/package.json"; then
-    bend yarn;
-  fi
-
-  # if bend root, then update bend deps
-  if test -f "$(pwd)/static_conf.json"; then
-    bend bpm update;
-  fi
 }
 
 compctl -K _repo_comp repo
 
-# Added by nex: https://git.hubteam.com/HubSpot/nex
-. ~/.hubspot/shellrc
+eval "$(/opt/homebrew/bin/brew shellenv)"

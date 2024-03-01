@@ -36,7 +36,7 @@ brew install git --force
 
 # npm installs
 npm i -g n
-n latest
+sudo n latest
 
 
 # I will always forget this stuff
@@ -46,12 +46,11 @@ echo "  - Bear (Mac App Store)"
 ################################################################################
 ### Link dotfiles to correct location                                        ###       
 ################################################################################
-ln -sf ~/git/aem/utils/vimrc ~/.vimrc
-ln -sf ~/git/aem/utils/zshrc ~/.zshrc
-ln -sf ~/git/aem/utils/gitignore ~/.gitignore
-ln -sf ~/git/aem/utils/gitconfig ~/.gitconfig
-ln -sf ~/git/aem/utils/karabiner.json ~/.config/karabiner/karabiner.json
-ln -sf ~/git/aem/utils/oh-my-zsh ~/.oh-my-zsh
+ln -sf ~/src/aem/utils/vimrc ~/.vimrc
+ln -sf ~/src/aem/utils/zshrc ~/.zshrc
+ln -sf ~/src/aem/utils/gitignore ~/.gitignore
+ln -sf ~/src/aem/utils/gitconfig ~/.gitconfig
+ln -sf ~/src/aem/utils/karabiner.json ~/.config/karabiner/karabiner.json
 
 ################################################################################
 ### Set up system defaults                                                   ###       
@@ -61,11 +60,3 @@ defaults write com.apple.Finder AppleShowAllFiles YES
 defaults write -g ApplePressAndHoldEnabled -bool false
 defaults write com.apple.Terminal NSQuitAlwaysKeepsWindows YES
 
-# ensure golinks work in firefox
-for dir in $HOME/Library/Application\ Support/Firefox/Profiles/*/
-do
-  dir=${dir%*/}
-  echo "user_pref(\"browser.fixup.domainwhitelist.go\", true);" >> "$dir/user.js";
-  echo "user_pref(\"security.tls.enable_0rtt_data\", false);" >> "$dir/user.js";
-  echo "user_pref(\"security.tls.hello_downgrade_check\", false);" >> "$dir/user.js";
-done
