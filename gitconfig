@@ -1,5 +1,6 @@
 [user]
 	email = amarkon895@gmail.com
+	name = aem
 [core]
 	hooksPath = /Users/amarkon/.git_hooks
 	excludesfile = ~/.gitignore
