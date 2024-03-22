@@ -196,7 +196,7 @@ unset env
 pr () {
   REMOTE_BRANCH=$(git for-each-ref --format='%(upstream:short)' $(git symbolic-ref -q HEAD))
   REMOTE_NAME=$(echo $REMOTE_BRANCH | cut -d '/' -f1)
-  REMOTE_URL=$(git remote get-url $REMOTE_NAME);
+  REMOTE_URL=$(git remote get-url $REMOTE_NAME | sed 's/git@github.com:/https:\/\/github.com\//');
   BRANCH=$(echo $REMOTE_BRANCH | cut -d '/' -f2);
   open ${REMOTE_URL%.*}/compare/${BRANCH}\?expand=1
 }
