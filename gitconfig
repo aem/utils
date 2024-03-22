@@ -11,5 +11,3 @@
 	protocol = ssh
 [pager]
 	grep = false
-[alias]
-	dad = !curl https://icanhazzdadjoke.com/ && git add

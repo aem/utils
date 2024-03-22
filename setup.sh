@@ -50,6 +50,7 @@ ln -sf ~/src/aem/utils/vimrc ~/.vimrc
 ln -sf ~/src/aem/utils/zshrc ~/.zshrc
 ln -sf ~/src/aem/utils/gitignore ~/.gitignore
 ln -sf ~/src/aem/utils/gitconfig ~/.gitconfig
+mkdir -p ~/.config/karabiner
 ln -sf ~/src/aem/utils/karabiner.json ~/.config/karabiner/karabiner.json
 
 ################################################################################

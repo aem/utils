@@ -91,7 +91,7 @@ alias stash="git stash save"
 alias pop="git stash pop"
 alias la="ls -al"
 alias up="cd .."
-alias g="cd ~/git"
+alias s="cd ~/src"
 alias up="cd .."
 alias zp="vi ~/.zshrc"
 alias tmp="git add . && git commit -m 'tmp'"
@@ -112,7 +112,7 @@ push () {
 }
 
 _gch_comp() {
-  reply=(`git branch | grep adam`);
+  reply=(`git branch | grep am-`);
 }
 
 compctl -K _gch_comp gch
@@ -120,7 +120,11 @@ compctl -K _gch_comp gre
 
 function gch() {
   if [ "$1" = "-b" ]; then
-    git checkout -b "adam/$2";
+    git checkout -b "am-$2";
+  elif [ $1 = "-m" ]; then
+    git checkout main;
+    pull;
+    yarn install;
   else
     git checkout "$1";
   fi
@@ -130,7 +134,7 @@ gre () {
   if [ $1 = "-a" ]; then
     git rebase --autostash $2;
   elif [ $1 = "-m" ]; then
-    git pull --rebase origin master;
+    git pull --rebase origin main;
   else
     git rebase $@
   fi
@@ -218,3 +222,9 @@ function repo() {
 compctl -K _repo_comp repo
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/amarkon/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/amarkon/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/amarkon/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/amarkon/google-cloud-sdk/completion.zsh.inc'; fi

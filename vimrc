@@ -75,9 +75,6 @@ call plug#begin('~/.vim/plugged')
   Plug 'maxmellon/vim-jsx-pretty'
   Plug 'zivyangll/git-blame.vim'
   Plug 'preservim/nerdcommenter'
-  Plug 'glanotte/vim-jasmine'
-  Plug 'pantharshit00/vim-prisma'
-  Plug 'digitaltoad/vim-pug'
 call plug#end()
 
 let g:javascript_plugin_jsdoc = 1
